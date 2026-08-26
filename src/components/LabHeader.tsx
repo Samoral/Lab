@@ -2,11 +2,13 @@ import React from 'react';
 import { SimState, SimOutput } from '../types';
 import { playClickSound } from '../utils/audio';
 
+export type LabTab = '3d_lab' | 'spectrum' | 'molecular' | 'transport' | 'diagram' | 'experiments' | 'quiz';
+
 interface HeaderProps {
   state: SimState;
   output: SimOutput;
-  activeTab: '3d_lab' | 'diagram' | 'experiments' | 'quiz';
-  onSelectTab: (tab: '3d_lab' | 'diagram' | 'experiments' | 'quiz') => void;
+  activeTab: LabTab;
+  onSelectTab: (tab: LabTab) => void;
   onTogglePlay: () => void;
   onToggleMute: () => void;
   onToggleParticles: () => void;
@@ -27,6 +29,15 @@ export const LabHeader: React.FC<HeaderProps> = ({
   onChangeSpeed,
   onReset
 }) => {
+  const tabs: { id: LabTab; label: string; icon: string }[] = [
+    { id: '3d_lab', label: '3D Plant Lab', icon: '🌿' },
+    { id: 'spectrum', label: 'Light Spectrum & Chlorophyll', icon: '🌈' },
+    { id: 'molecular', label: 'ATP/NADPH & Reactions', icon: '🔬' },
+    { id: 'transport', label: 'Water & CO₂ Transport', icon: '💧' },
+    { id: 'diagram', label: 'Flow Diagram', icon: '🗺️' },
+    { id: 'experiments', label: 'Challenges', icon: '🧪' },
+    { id: 'quiz', label: 'Quiz', icon: '📝' }
+  ];
   return (
     <header className="bg-white/95 border-b-2 border-emerald-100 sticky top-0 z-30 backdrop-blur-md px-4 sm:px-8 py-3.5 shadow-sm">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
@@ -51,66 +62,28 @@ export const LabHeader: React.FC<HeaderProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-1.5 bg-emerald-50 p-1.5 rounded-2xl border border-emerald-200/80 self-start md:self-auto overflow-x-auto max-w-full">
-          <button
-            id="tab_3d_lab"
-            onClick={() => {
-              playClickSound(state.isMuted);
-              onSelectTab('3d_lab');
-            }}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === '3d_lab'
-                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
-                : 'text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100/70'
-            }`}
-          >
-            <span>🌿 3D Virtual Lab</span>
-          </button>
-
-          <button
-            id="tab_diagram"
-            onClick={() => {
-              playClickSound(state.isMuted);
-              onSelectTab('diagram');
-            }}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'diagram'
-                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
-                : 'text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100/70'
-            }`}
-          >
-            <span>🗺️ Flow Diagram</span>
-          </button>
-
-          <button
-            id="tab_experiments"
-            onClick={() => {
-              playClickSound(state.isMuted);
-              onSelectTab('experiments');
-            }}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'experiments'
-                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
-                : 'text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100/70'
-            }`}
-          >
-            <span>🧪 Challenges</span>
-          </button>
-
-          <button
-            id="tab_quiz"
-            onClick={() => {
-              playClickSound(state.isMuted);
-              onSelectTab('quiz');
-            }}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'quiz'
-                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
-                : 'text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100/70'
-            }`}
-          >
-            <span>📝 Quiz</span>
-          </button>
+        <nav className="flex items-center gap-1 bg-emerald-50 p-1.5 rounded-2xl border border-emerald-200/80 self-start md:self-auto overflow-x-auto max-w-full">
+          {tabs.map((t) => {
+            const isActive = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                id={`tab_${t.id}`}
+                onClick={() => {
+                  playClickSound(state.isMuted);
+                  onSelectTab(t.id);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                  isActive
+                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
+                    : 'text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100/70'
+                }`}
+              >
+                <span>{t.icon}</span>
+                <span>{t.label}</span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Global Toolbar Controls */}

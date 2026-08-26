@@ -1,13 +1,24 @@
 export type ViewLevel = 'whole_plant' | 'leaf_cross_section' | 'chloroplast_zoom';
 
-export type LightSpectrum = 'white' | 'blue' | 'red' | 'green' | 'dark';
+export type LightSpectrum =
+  | 'white'
+  | 'violet'
+  | 'blue'
+  | 'cyan'
+  | 'green'
+  | 'yellow'
+  | 'red'
+  | 'far_red'
+  | 'dark'
+  | 'custom';
 
 export interface SimState {
   viewLevel: ViewLevel;
   lightIntensity: number; // 0 - 100 %
   lightSpectrum: LightSpectrum;
-  co2Level: number; // 0 - 1200 ppm
-  waterLevel: number; // 0 - 100 %
+  wavelengthNm: number; // 380 - 750 nm
+  co2Level: number; // 0 - 1500 ppm
+  waterLevel: number; // 0 - 100 % (Soil moisture / root water uptake)
   temperature: number; // 5 - 50 °C
   isPlaying: boolean;
   simSpeed: number; // 0.5x, 1x, 2x
@@ -25,6 +36,15 @@ export interface SimOutput {
   limitingFactor: 'Light' | 'CO2' | 'Water' | 'Temperature' | 'None (Optimal)';
   limitingFactorExplanation: string;
   chlorophyllAbsorption: number; // 0 - 100 %
+  chlAAbsorption: number; // 0 - 100 %
+  chlBAbsorption: number; // 0 - 100 %
+  carotenoidAbsorption: number; // 0 - 100 %
+  parFlux: number; // µmol photons/m²/s
+  xylemFlowRate: number; // mL/h root-to-leaf flux
+  co2DiffusionRate: number; // µmol CO2/s leaf influx
+  atpProductionRate: number; // nmol/s
+  nadphProductionRate: number; // nmol/s
+  rubiscoActivity: number; // 0 - 100 %
 }
 
 export interface HotspotInfo {
@@ -58,3 +78,4 @@ export interface QuizQuestion {
   explanation: string;
   relatedStructure: string;
 }
+

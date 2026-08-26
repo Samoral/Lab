@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { SimState, SimOutput, ViewLevel } from '../../types';
-import { SPECTRUM_EFFICIENCY } from '../../utils/photosynthesisMath';
+import { SPECTRUM_EFFICIENCY, wavelengthToHex } from '../../utils/photosynthesisMath';
 import { HOTSPOTS } from '../../data/labData';
 
 interface CanvasProps {
@@ -185,9 +185,13 @@ export const PhotosynthesisCanvas: React.FC<CanvasProps> = ({
     updateSceneVisibility(state.viewLevel);
 
     // Update Sun Light and color
-    const spec = SPECTRUM_EFFICIENCY[state.lightSpectrum];
+    const activeColorHex =
+      state.lightSpectrum === 'custom'
+        ? wavelengthToHex(state.wavelengthNm || 450)
+        : SPECTRUM_EFFICIENCY[state.lightSpectrum]?.colorHex || '#FBBF24';
+
     if (sunLightRef.current && sunMeshRef.current) {
-      const color = new THREE.Color(spec.colorHex);
+      const color = new THREE.Color(activeColorHex);
       const intensity = (state.lightIntensity / 100) * 3.5;
       sunLightRef.current.color = color;
       sunLightRef.current.intensity = intensity;
@@ -687,8 +691,11 @@ export const PhotosynthesisCanvas: React.FC<CanvasProps> = ({
     // 1. Photons streaming down towards leaf canopy
     if (photonParticlesRef.current) {
       photonParticlesRef.current.visible = sim.lightIntensity > 0 && sim.lightSpectrum !== 'dark';
-      const spec = SPECTRUM_EFFICIENCY[sim.lightSpectrum];
-      (photonParticlesRef.current.material as THREE.PointsMaterial).color.set(spec.colorHex);
+      const photonHex =
+        sim.lightSpectrum === 'custom'
+          ? wavelengthToHex(sim.wavelengthNm || 450)
+          : SPECTRUM_EFFICIENCY[sim.lightSpectrum]?.colorHex || '#FBBF24';
+      (photonParticlesRef.current.material as THREE.PointsMaterial).color.set(photonHex);
 
       const positions = photonParticlesRef.current.geometry.attributes.position.array as Float32Array;
       const rateFactor = (sim.lightIntensity / 100) * speedMult * 2.2;

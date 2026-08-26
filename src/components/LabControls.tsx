@@ -150,11 +150,13 @@ export const LabControls: React.FC<ControlsProps> = ({ state, output, onChange }
             <div className="text-xs font-bold text-emerald-900 mb-1.5 flex items-center justify-between">
               <span>Wavelength / Light Color:</span>
               <span className="text-[11px] text-emerald-700 font-mono font-medium">
-                {SPECTRUM_EFFICIENCY[state.lightSpectrum].wavelength}
+                {state.lightSpectrum === 'custom'
+                  ? `${state.wavelengthNm || 450} nm (Custom)`
+                  : SPECTRUM_EFFICIENCY[state.lightSpectrum]?.wavelength || 'PAR'}
               </span>
             </div>
-            <div className="grid grid-cols-5 gap-1.5 text-xs">
-              {(['white', 'blue', 'red', 'green', 'dark'] as LightSpectrum[]).map((specKey) => {
+            <div className="grid grid-cols-5 sm:grid-cols-5 gap-1.5 text-xs">
+              {(['white', 'violet', 'blue', 'green', 'red'] as LightSpectrum[]).map((specKey) => {
                 const spec = SPECTRUM_EFFICIENCY[specKey];
                 const isSelected = state.lightSpectrum === specKey;
                 return (
@@ -163,7 +165,11 @@ export const LabControls: React.FC<ControlsProps> = ({ state, output, onChange }
                     id={`spectrum_btn_${specKey}`}
                     onClick={() => {
                       playClickSound(state.isMuted);
-                      onChange((prev) => ({ ...prev, lightSpectrum: specKey }));
+                      onChange((prev) => ({
+                        ...prev,
+                        lightSpectrum: specKey,
+                        wavelengthNm: spec.defaultWavelength
+                      }));
                     }}
                     className={`py-2 px-1 text-center rounded-xl border transition-all ${
                       isSelected

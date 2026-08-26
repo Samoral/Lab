@@ -7,7 +7,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { SimState, ViewLevel } from './types';
 import { calculatePhotosynthesis } from './utils/photosynthesisMath';
 import { playBubbleSound, playClickSound } from './utils/audio';
-import { LabHeader } from './components/LabHeader';
+import { LabHeader, LabTab } from './components/LabHeader';
 import { PhotosynthesisCanvas } from './components/3d/PhotosynthesisCanvas';
 import { RateDashboard } from './components/RateDashboard';
 import { LabControls } from './components/LabControls';
@@ -16,12 +16,16 @@ import { InteractiveDiagram } from './components/InteractiveDiagram';
 import { GuidedExperiments } from './components/GuidedExperiments';
 import { ConceptQuiz } from './components/ConceptQuiz';
 import { StructureInspectorModal } from './components/StructureInspectorModal';
+import { LightSpectrumAnalyzer } from './components/LightSpectrumAnalyzer';
+import { MolecularReactionsModule } from './components/MolecularReactionsModule';
+import { VascularGasTransportSimulation } from './components/VascularGasTransportSimulation';
 
 export default function App() {
   const [state, setState] = useState<SimState>({
     viewLevel: 'whole_plant',
     lightIntensity: 85,
     lightSpectrum: 'white',
+    wavelengthNm: 450,
     co2Level: 750,
     waterLevel: 80,
     temperature: 25,
@@ -32,7 +36,7 @@ export default function App() {
     isMuted: false
   });
 
-  const [activeTab, setActiveTab] = useState<'3d_lab' | 'diagram' | 'experiments' | 'quiz'>('3d_lab');
+  const [activeTab, setActiveTab] = useState<LabTab>('3d_lab');
   const [selectedHotspot, setSelectedHotspot] = useState<string | null>(null);
 
   // Compute live biological outputs
@@ -167,6 +171,63 @@ export default function App() {
               />
             </div>
 
+            {/* Quick Deep-Dive Module Jumper Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                onClick={() => {
+                  playClickSound(state.isMuted);
+                  setActiveTab('spectrum');
+                }}
+                className="p-4 bg-white rounded-2xl border border-emerald-100 hover:border-emerald-300 text-left transition-all group shadow-2xs hover:shadow-sm"
+              >
+                <div className="text-xl mb-1 group-hover:scale-110 transition-transform inline-block">
+                  🌈
+                </div>
+                <div className="text-xs font-black text-emerald-950">
+                  Light Spectrum &amp; Chlorophyll
+                </div>
+                <p className="text-[11px] text-emerald-700/80 mt-0.5 font-medium">
+                  Adjust wavelength (380-750nm) &amp; inspect pigment absorption curves.
+                </p>
+              </button>
+
+              <button
+                onClick={() => {
+                  playClickSound(state.isMuted);
+                  setActiveTab('molecular');
+                }}
+                className="p-4 bg-white rounded-2xl border border-emerald-100 hover:border-emerald-300 text-left transition-all group shadow-2xs hover:shadow-sm"
+              >
+                <div className="text-xl mb-1 group-hover:scale-110 transition-transform inline-block">
+                  🔬
+                </div>
+                <div className="text-xs font-black text-emerald-950">
+                  ATP/NADPH &amp; Calvin Cycle
+                </div>
+                <p className="text-[11px] text-emerald-700/80 mt-0.5 font-medium">
+                  Step through light reactions, ATP synthesis, and glucose assembly.
+                </p>
+              </button>
+
+              <button
+                onClick={() => {
+                  playClickSound(state.isMuted);
+                  setActiveTab('transport');
+                }}
+                className="p-4 bg-white rounded-2xl border border-emerald-100 hover:border-emerald-300 text-left transition-all group shadow-2xs hover:shadow-sm"
+              >
+                <div className="text-xl mb-1 group-hover:scale-110 transition-transform inline-block">
+                  💧
+                </div>
+                <div className="text-xs font-black text-emerald-950">
+                  Vascular Water &amp; CO₂ Gas
+                </div>
+                <p className="text-[11px] text-emerald-700/80 mt-0.5 font-medium">
+                  Simulate root uptake, xylem flow, and stomata gas diffusion.
+                </p>
+              </button>
+            </div>
+
             {/* Interactive Chemical Equation */}
             <InteractiveEquation state={state} output={output} />
 
@@ -175,7 +236,59 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 2: 2D Interactive Flow Diagram */}
+        {/* Tab 2: Light Spectrum & Chlorophyll Analyzer */}
+        {activeTab === 'spectrum' && (
+          <div className="space-y-6 animate-fadeIn">
+            <LightSpectrumAnalyzer state={state} output={output} onChange={setState} />
+            <InteractiveEquation state={state} output={output} />
+            {/* Embedded 3D View showing monochromatic light effect on plant */}
+            <div className="h-[400px] w-full">
+              <PhotosynthesisCanvas
+                state={state}
+                output={output}
+                onSelectHotspot={setSelectedHotspot}
+                onChangeView={handleChangeView}
+              />
+            </div>
+            <LabControls state={state} output={output} onChange={setState} />
+          </div>
+        )}
+
+        {/* Tab 3: Molecular Reactions Engine (Chlorophyll, ATP/NADPH & Calvin Cycle) */}
+        {activeTab === 'molecular' && (
+          <div className="space-y-6 animate-fadeIn">
+            <MolecularReactionsModule state={state} output={output} />
+            <InteractiveEquation state={state} output={output} />
+            {/* Embedded Zoom into Chloroplast */}
+            <div className="h-[400px] w-full">
+              <PhotosynthesisCanvas
+                state={state}
+                output={output}
+                onSelectHotspot={setSelectedHotspot}
+                onChangeView={handleChangeView}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Plant Vascular & Gas Transport Simulation */}
+        {activeTab === 'transport' && (
+          <div className="space-y-6 animate-fadeIn">
+            <VascularGasTransportSimulation state={state} output={output} onChange={setState} />
+            {/* Embedded Leaf Cross-section View */}
+            <div className="h-[400px] w-full">
+              <PhotosynthesisCanvas
+                state={state}
+                output={output}
+                onSelectHotspot={setSelectedHotspot}
+                onChangeView={handleChangeView}
+              />
+            </div>
+            <LabControls state={state} output={output} onChange={setState} />
+          </div>
+        )}
+
+        {/* Tab 5: 2D Interactive Flow Diagram */}
         {activeTab === 'diagram' && (
           <div className="space-y-6 animate-fadeIn">
             <InteractiveDiagram state={state} output={output} />
@@ -183,7 +296,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3: Guided Science Challenges */}
+        {/* Tab 6: Guided Science Challenges */}
         {activeTab === 'experiments' && (
           <div className="space-y-6 animate-fadeIn">
             <GuidedExperiments
@@ -204,7 +317,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 4: Student Mastery Quiz */}
+        {/* Tab 7: Student Mastery Quiz */}
         {activeTab === 'quiz' && (
           <div className="space-y-6 animate-fadeIn">
             <ConceptQuiz
