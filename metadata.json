@@ -1,0 +1,6 @@
+{
+  "name": "Photosynthesis 3D Lab",
+  "description": "An interactive 3D virtual laboratory for students to explore photosynthesis with dynamic 3D plant and cellular animations, live parameter experimentation, and guided science challenges.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
